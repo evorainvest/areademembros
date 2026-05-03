@@ -1,0 +1,2429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mentoria 7 Dias — Área de Membros</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E50914;
+    --red-dark: #b20710;
+    --gold: #F5C518;
+    --bg: #0B0B0B;
+    --bg2: #141414;
+    --bg3: #1a1a1a;
+    --bg4: #222;
+    --surface: #1f1f1f;
+    --border: rgba(255,255,255,0.08);
+    --text: #FFFFFF;
+    --text-muted: rgba(255,255,255,0.55);
+    --text-dim: rgba(255,255,255,0.3);
+    --green: #46d369;
+    --locked-overlay: rgba(0,0,0,0.72);
+    --card-w: 220px;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===================== SCROLLBAR ===================== */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
+  /* ===================== UTILITIES ===================== */
+  .hidden { display: none !important; }
+  .flex { display: flex; }
+  .items-center { align-items: center; }
+  .justify-center { justify-content: center; }
+  .gap-2 { gap: 8px; }
+  .gap-3 { gap: 12px; }
+  .pointer { cursor: pointer; }
+  .w-full { width: 100%; }
+  .text-center { text-align: center; }
+  .relative { position: relative; }
+
+  /* ===================== PAGES ===================== */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: flex; }
+
+  /* ===================== AUTH PAGES ===================== */
+  #page-auth {
+    background: linear-gradient(135deg, #0b0b0b 0%, #1a0000 50%, #0b0b0b 100%);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #page-auth::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(229,9,20,0.12) 0%, transparent 70%);
+    top: -200px; left: -200px;
+    pointer-events: none;
+  }
+
+  #page-auth::after {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(229,9,20,0.08) 0%, transparent 70%);
+    bottom: -150px; right: -100px;
+    pointer-events: none;
+  }
+
+  .auth-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: var(--red);
+    letter-spacing: -1px;
+    margin-bottom: 2.5rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .auth-logo span { color: #fff; }
+
+  .auth-card {
+    background: rgba(20,20,20,0.9);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 420px;
+    backdrop-filter: blur(20px);
+    position: relative;
+    z-index: 1;
+  }
+
+  .auth-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .auth-card p.subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.1rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+
+  .form-group input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  .form-group input:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(229,9,20,0.15);
+  }
+
+  .form-group input::placeholder { color: var(--text-dim); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--red);
+    color: #fff;
+    width: 100%;
+  }
+
+  .btn-primary:hover { background: var(--red-dark); transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    width: 100%;
+    margin-top: 0.6rem;
+  }
+
+  .btn-secondary:hover { background: var(--bg3); border-color: rgba(255,255,255,0.2); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    padding: 0.4rem 0;
+    border: none;
+  }
+
+  .btn-ghost:hover { color: var(--text); }
+
+  .btn-green {
+    background: var(--green);
+    color: #000;
+  }
+
+  .btn-green:hover { background: #3bc060; transform: translateY(-1px); }
+
+  .auth-footer {
+    text-align: center;
+    margin-top: 1.4rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .auth-footer a, .auth-footer button.link {
+    color: var(--red);
+    cursor: pointer;
+    font-weight: 600;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: inherit;
+    text-decoration: none;
+  }
+
+  .auth-footer a:hover, .auth-footer button.link:hover { text-decoration: underline; }
+
+  .alert {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .alert-error { background: rgba(229,9,20,0.12); border: 1px solid rgba(229,9,20,0.3); color: #ff6b6b; }
+  .alert-success { background: rgba(70,211,105,0.12); border: 1px solid rgba(70,211,105,0.3); color: var(--green); }
+  .alert-info { background: rgba(245,197,24,0.1); border: 1px solid rgba(245,197,24,0.2); color: var(--gold); }
+
+  /* ===================== NAVBAR ===================== */
+  .navbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4%;
+    transition: background 0.4s;
+  }
+
+  .navbar.scrolled {
+    background: rgba(11,11,11,0.98);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .navbar-bg-always {
+    background: rgba(11,11,11,0.98) !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--red);
+    letter-spacing: -0.5px;
+  }
+
+  .nav-logo span { color: #fff; }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .nav-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .nav-avatar {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0;
+  }
+
+  .nav-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .nav-name strong { color: var(--text); }
+
+  .btn-logout {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .btn-logout:hover { background: var(--bg3); color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+  /* ===================== DASHBOARD ===================== */
+  #page-dashboard {
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* ---- HERO ---- */
+  .hero {
+    position: relative;
+    height: 70vh;
+    min-height: 480px;
+    max-height: 720px;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    padding: 4% 4% 4% 4%;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #0d0000 0%, #1a0000 35%, #0a0a1a 100%);
+    z-index: 0;
+  }
+
+  .hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(229,9,20,0.2) 0%, transparent 65%);
+    top: -200px; right: -100px;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .hero-glow2 {
+    position: absolute;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(245,197,24,0.05) 0%, transparent 70%);
+    bottom: 0; left: 20%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .hero-gradient {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60%;
+    background: linear-gradient(transparent, var(--bg));
+    z-index: 1;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 620px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(229,9,20,0.15);
+    border: 1px solid rgba(229,9,20,0.3);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #ff6b6b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+  }
+
+  .hero-badge .dot {
+    width: 6px; height: 6px;
+    background: var(--red);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+  }
+
+  .hero h1 .accent { color: var(--red); }
+
+  .hero p {
+    color: rgba(255,255,255,0.7);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 1.8rem;
+    max-width: 500px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn-hero-primary {
+    background: var(--red);
+    color: #fff;
+    padding: 0.85rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-hero-primary:hover { background: var(--red-dark); transform: scale(1.02); }
+
+  .btn-hero-secondary {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    padding: 0.85rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.2);
+    font-family: 'DM Sans', sans-serif;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s;
+  }
+
+  .btn-hero-secondary:hover { background: rgba(255,255,255,0.2); }
+
+  /* ---- PROGRESS SECTION ---- */
+  .progress-section {
+    padding: 2rem 4%;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .progress-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .progress-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .progress-count {
+    font-size: 0.85rem;
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  .progress-bar-outer {
+    background: var(--bg4);
+    border-radius: 999px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red), #ff6b6b);
+    border-radius: 999px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .progress-steps {
+    display: flex;
+    gap: 6px;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .progress-step {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    background: var(--bg3);
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+
+  .progress-step.done {
+    background: rgba(70,211,105,0.1);
+    border-color: rgba(70,211,105,0.3);
+    color: var(--green);
+  }
+
+  .progress-step.available {
+    background: rgba(229,9,20,0.1);
+    border-color: rgba(229,9,20,0.3);
+    color: #ff9090;
+  }
+
+  /* ---- CONTENT ROWS ---- */
+  .content-section {
+    padding: 2rem 0 2rem;
+  }
+
+  .section-header {
+    padding: 0 4%;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title .icon { font-size: 1.1rem; }
+
+  .section-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* ---- CAROUSEL ---- */
+  .carousel-wrapper {
+    position: relative;
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 16px;
+    padding: 8px 4%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  .carousel-track::-webkit-scrollbar { display: none; }
+
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: rgba(11,11,11,0.9);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+  }
+
+  .carousel-btn:hover { background: rgba(229,9,20,0.6); border-color: var(--red); transform: translateY(-50%) scale(1.05); }
+  .carousel-btn.prev { left: 8px; }
+  .carousel-btn.next { right: 8px; }
+
+  /* ---- CARD ---- */
+  .day-card {
+    flex: 0 0 var(--card-w);
+    scroll-snap-align: start;
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s;
+    background: var(--bg3);
+  }
+
+  .day-card:hover { transform: scale(1.06) translateY(-4px); box-shadow: 0 20px 50px rgba(0,0,0,0.6); z-index: 2; }
+  .day-card.locked { cursor: default; }
+  .day-card.locked:hover { transform: scale(1.02) translateY(-2px); }
+
+  .card-thumb {
+    width: 100%;
+    aspect-ratio: 2/3;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-cover {
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-cover-bg {
+    position: absolute;
+    inset: 0;
+    background: var(--cover-gradient, linear-gradient(145deg, #1a0505, #2d0a0a));
+  }
+
+  .card-cover-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.07;
+    background-image: repeating-linear-gradient(
+      45deg,
+      #fff 0, #fff 1px,
+      transparent 0, transparent 50%
+    );
+    background-size: 24px 24px;
+  }
+
+  .card-day-num {
+    position: relative;
+    z-index: 1;
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1;
+    color: rgba(255,255,255,0.15);
+    user-select: none;
+  }
+
+  .card-icon-large {
+    position: relative;
+    z-index: 1;
+    font-size: 2.8rem;
+    margin-bottom: 8px;
+  }
+
+  .card-title-cover {
+    position: relative;
+    z-index: 1;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: center;
+    color: rgba(255,255,255,0.9);
+    padding: 0 12px;
+    line-height: 1.3;
+    margin-top: 4px;
+  }
+
+  .card-status-badge {
+    position: relative;
+    z-index: 1;
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .badge-available { background: rgba(70,211,105,0.2); color: var(--green); border: 1px solid rgba(70,211,105,0.3); }
+  .badge-locked { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.12); }
+  .badge-done { background: rgba(70,211,105,0.25); color: var(--green); border: 1px solid rgba(70,211,105,0.4); }
+  .badge-special { background: rgba(245,197,24,0.15); color: var(--gold); border: 1px solid rgba(245,197,24,0.3); }
+
+  /* Locked overlay */
+  .lock-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .lock-icon {
+    font-size: 1.8rem;
+    opacity: 0.7;
+  }
+
+  .lock-text {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 0 10px;
+    font-weight: 500;
+  }
+
+  .card-info {
+    padding: 10px 12px 12px;
+  }
+
+  .card-meta {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+
+  .card-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text);
+  }
+
+  .card-progress-mini {
+    margin-top: 6px;
+    height: 3px;
+    background: var(--bg4);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .card-progress-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 99px;
+  }
+
+  /* ---- SPECIAL CARD (Dia 8) ---- */
+  .card-special .card-cover-bg {
+    background: linear-gradient(145deg, #1a1500, #2d2500) !important;
+  }
+
+  /* ===================== DAY VIEWER ===================== */
+  #page-viewer {
+    flex-direction: column;
+    background: var(--bg);
+    min-height: 100vh;
+  }
+
+  .viewer-header {
+    padding: 80px 4% 0;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .viewer-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: color 0.2s;
+    border: none;
+    background: none;
+    font-family: 'DM Sans', sans-serif;
+    padding: 0;
+  }
+
+  .viewer-back:hover { color: var(--text); }
+
+  .viewer-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .viewer-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    line-height: 1.2;
+  }
+
+  .viewer-desc {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    max-width: 600px;
+    margin-bottom: 1.5rem;
+  }
+
+  .viewer-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .viewer-body {
+    padding: 2rem 4% 4rem;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* ---- EBOOK VIEWER ---- */
+  .ebook-container {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+
+  .ebook-topbar {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ebook-topbar-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ebook-topbar-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .ebook-topbar-btn {
+    padding: 4px 14px;
+    border-radius: 6px;
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .ebook-topbar-btn:hover { background: var(--bg3); color: var(--text); }
+
+  .ebook-content {
+    padding: 2.5rem;
+    min-height: 500px;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .ebook-content h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1rem;
+  }
+
+  .ebook-content h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-top: 1.8rem;
+    margin-bottom: 0.8rem;
+    color: rgba(255,255,255,0.9);
+  }
+
+  .ebook-content p {
+    color: rgba(255,255,255,0.72);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+
+  .ebook-content ul {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .ebook-content ul li {
+    color: rgba(255,255,255,0.68);
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 0.4rem;
+  }
+
+  .ebook-content .highlight-box {
+    background: rgba(229,9,20,0.08);
+    border: 1px solid rgba(229,9,20,0.2);
+    border-left: 4px solid var(--red);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1.2rem 0;
+  }
+
+  .ebook-content .highlight-box p { color: rgba(255,255,255,0.8); margin: 0; }
+
+  .ebook-content .tip-box {
+    background: rgba(70,211,105,0.06);
+    border: 1px solid rgba(70,211,105,0.2);
+    border-left: 4px solid var(--green);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1.2rem 0;
+  }
+
+  .ebook-content .tip-box p { color: rgba(255,255,255,0.8); margin: 0; }
+
+  /* ---- ACCESS AREA (Dia 8) ---- */
+  .access-card {
+    background: linear-gradient(135deg, #1a1500, #2d2500);
+    border: 1px solid rgba(245,197,24,0.2);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .access-card::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -50px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(245,197,24,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .access-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .access-card p {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .credentials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .cred-item {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(245,197,24,0.15);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .cred-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgba(245,197,24,0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+
+  .cred-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    word-break: break-all;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .copy-btn {
+    background: none;
+    border: none;
+    color: rgba(245,197,24,0.6);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: color 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .copy-btn:hover { color: var(--gold); }
+
+  .cred-warning {
+    background: rgba(229,9,20,0.08);
+    border: 1px solid rgba(229,9,20,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    color: #ff9090;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-access {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--gold);
+    color: #000;
+    padding: 0.85rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .btn-access:hover { background: #e0b000; transform: scale(1.02); }
+
+  /* ---- COMPLETE BUTTON ---- */
+  .complete-section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.8rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .complete-left h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .complete-left p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .btn-complete {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--green);
+    color: #000;
+    padding: 0.8rem 1.8rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-complete:hover { background: #3bc060; transform: scale(1.02); }
+  .btn-complete:disabled { opacity: 0.5; cursor: default; transform: none; }
+  .btn-complete.completed { background: var(--bg4); color: var(--green); border: 1px solid rgba(70,211,105,0.3); }
+
+  /* ===================== TOAST ===================== */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+  }
+
+  .toast {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    min-width: 260px;
+    max-width: 340px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    animation: toastIn 0.3s ease;
+    pointer-events: all;
+    font-size: 0.85rem;
+  }
+
+  .toast.hiding { animation: toastOut 0.3s ease forwards; }
+
+  @keyframes toastIn {
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @keyframes toastOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(120%); opacity: 0; }
+  }
+
+  .toast-success { border-color: rgba(70,211,105,0.3); }
+  .toast-error { border-color: rgba(229,9,20,0.3); }
+  .toast-info { border-color: rgba(245,197,24,0.3); }
+
+  /* ===================== DIVIDER ===================== */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1rem 0;
+  }
+
+  /* ===================== MODAL (LOCKED) ===================== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    backdrop-filter: blur(6px);
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes modalIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-icon { font-size: 3rem; margin-bottom: 1rem; }
+
+  .modal h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .modal p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ===================== RESPONSIVE ===================== */
+  @media (max-width: 640px) {
+    .hero { height: 55vh; }
+    .hero h1 { font-size: 1.9rem; }
+    .btn-hero-secondary { display: none; }
+    --card-w: 160px;
+    .complete-section { flex-direction: column; align-items: flex-start; }
+    .nav-name { display: none; }
+  }
+
+  /* ===================== ANIMATIONS ===================== */
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+
+  .fade-in { animation: fadeInUp 0.5s ease both; }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+
+  /* Footer */
+  .footer {
+    padding: 2rem 4%;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: gap;
+    gap: 1rem;
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--red);
+  }
+
+  .footer-logo span { color: var(--text-muted); }
+
+  .footer p {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+
+  /* ---- CARD color variants ---- */
+  .cover-1 { --cover-gradient: linear-gradient(145deg, #1a0505, #3d0f0f); }
+  .cover-2 { --cover-gradient: linear-gradient(145deg, #051a10, #0f3d20); }
+  .cover-3 { --cover-gradient: linear-gradient(145deg, #05101a, #0f2d3d); }
+  .cover-4 { --cover-gradient: linear-gradient(145deg, #1a0f05, #3d2010); }
+  .cover-5 { --cover-gradient: linear-gradient(145deg, #14051a, #2d0f3d); }
+  .cover-6 { --cover-gradient: linear-gradient(145deg, #1a1505, #3d3010); }
+  .cover-7 { --cover-gradient: linear-gradient(145deg, #0a1a1a, #103030); }
+  .cover-8 { --cover-gradient: linear-gradient(145deg, #1a1500, #2d2500); }
+
+  /* Input password toggle */
+  .input-wrapper { position: relative; }
+  .input-wrapper input { padding-right: 42px; }
+  .toggle-pass {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px;
+    line-height: 1;
+  }
+  .toggle-pass:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- ========== AUTH PAGE ========== -->
+<div id="page-auth" class="page active">
+  <div class="auth-logo">Évora<span> Invest</span></div>
+
+  <!-- LOGIN -->
+  <div id="form-login" class="auth-card fade-in">
+    <h2>Bem-vindo de volta 👋</h2>
+    <p class="subtitle">Acesse sua área de membros exclusiva</p>
+    <div id="login-alert" class="hidden"></div>
+    <div class="form-group">
+      <label>E-mail</label>
+      <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Senha</label>
+      <div class="input-wrapper">
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+        <button class="toggle-pass" onclick="togglePass('login-password',this)">👁</button>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()" style="margin-top:0.5rem">Entrar na Plataforma →</button>
+    <div class="auth-footer" style="margin-top:1rem">
+      <button class="link" onclick="showForm('forgot')">Esqueci minha senha</button>
+      &nbsp;·&nbsp;
+      <button class="link" onclick="showForm('signup')">Criar conta</button>
+    </div>
+  </div>
+
+  <!-- SIGNUP -->
+  <div id="form-signup" class="auth-card fade-in hidden">
+    <h2>Criar sua conta</h2>
+    <p class="subtitle">Comece sua jornada de 7 dias agora mesmo</p>
+    <div id="signup-alert" class="hidden"></div>
+    <div class="form-group">
+      <label>Nome completo</label>
+      <input type="text" id="signup-name" placeholder="Seu nome" autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label>E-mail</label>
+      <input type="email" id="signup-email" placeholder="seu@email.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Senha</label>
+      <div class="input-wrapper">
+        <input type="password" id="signup-password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+        <button class="toggle-pass" onclick="togglePass('signup-password',this)">👁</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Confirmar senha</label>
+      <div class="input-wrapper">
+        <input type="password" id="signup-confirm" placeholder="Repita a senha" autocomplete="new-password">
+        <button class="toggle-pass" onclick="togglePass('signup-confirm',this)">👁</button>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="doSignup()">Criar conta e começar →</button>
+    <div class="auth-footer">
+      Já tem conta? <button class="link" onclick="showForm('login')">Entrar</button>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD -->
+  <div id="form-forgot" class="auth-card fade-in hidden">
+    <h2>Recuperar acesso</h2>
+    <p class="subtitle">Enviaremos as instruções para seu e-mail</p>
+    <div id="forgot-alert" class="hidden"></div>
+    <div class="form-group">
+      <label>E-mail cadastrado</label>
+      <input type="email" id="forgot-email" placeholder="seu@email.com">
+    </div>
+    <button class="btn btn-primary" onclick="doForgot()">Enviar instruções →</button>
+    <button class="btn btn-secondary" onclick="showForm('login')">← Voltar ao login</button>
+  </div>
+</div>
+
+<!-- ========== DASHBOARD PAGE ========== -->
+<div id="page-dashboard" class="page">
+  <!-- Navbar -->
+  <nav class="navbar navbar-bg-always" id="navbar">
+    <div class="nav-logo">Évora<span> Invest</span></div>
+    <div class="nav-right">
+      <div class="nav-user">
+        <div class="nav-avatar" id="nav-avatar">?</div>
+        <div class="nav-name"><strong id="nav-username">Usuário</strong></div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
+    <div class="hero-gradient"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><div class="dot"></div> Programa Exclusivo</div>
+      <h1>Mentoria <span class="accent">7 Dias</span><br>Para Operar com U$S10.000</h1>
+      <p>Sete dias de conteúdo estratégico, liberado progressivamente para você absorver e aplicar com consistência.</p>
+      <div class="hero-actions">
+        <button class="btn-hero-primary" id="hero-cta-btn" onclick="heroAction()">
+          ▶ Continuar de onde parei
+        </button>
+        <button class="btn-hero-secondary" onclick="scrollToContent()">Ver todos os dias</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Progress -->
+  <section class="progress-section" id="progress-section">
+    <div class="progress-header">
+      <span class="progress-label" id="progress-label">Seu progresso</span>
+      <span class="progress-count" id="progress-count">0 de 7 concluídos</span>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div class="progress-steps" id="progress-steps"></div>
+  </section>
+
+  <!-- Content -->
+  <main id="content-main">
+
+    <!-- Mentoria Row -->
+    <section class="content-section" id="mentoria-section">
+      <div class="section-header">
+        <div class="section-title"><span class="icon">📚</span> Mentoria 7 Dias</div>
+        <div class="section-sub" id="days-unlocked-label"></div>
+      </div>
+      <div class="carousel-wrapper">
+        <button class="carousel-btn prev" onclick="scrollCarousel('carousel-main',-1)">‹</button>
+        <div class="carousel-track" id="carousel-main"></div>
+        <button class="carousel-btn next" onclick="scrollCarousel('carousel-main',1)">›</button>
+      </div>
+    </section>
+
+    <!-- Day 8 Row -->
+    <section class="content-section">
+      <div class="section-header">
+        <div class="section-title"><span class="icon">⭐</span> Conteúdo Final</div>
+        <div class="section-sub">Liberado após concluir os 7 dias</div>
+      </div>
+      <div class="carousel-wrapper">
+        <div class="carousel-track" id="carousel-special"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-logo">Mentoria<span> 7 Dias</span></div>
+    <p>© 2025 — Área de Membros Exclusiva. Todos os direitos reservados.</p>
+  </footer>
+</div>
+
+<!-- ========== VIEWER PAGE ========== -->
+<div id="page-viewer" class="page">
+  <nav class="navbar navbar-bg-always">
+    <div class="nav-logo">Évora<span> Invest</span></div>
+    <div class="nav-right">
+      <div class="nav-user">
+        <div class="nav-avatar" id="nav-avatar-v">?</div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </nav>
+
+  <div class="viewer-header">
+    <button class="viewer-back" onclick="showPage('dashboard')">← Voltar à plataforma</button>
+    <div class="viewer-meta" id="viewer-meta">Dia 1 — Mentoria 7 Dias</div>
+    <h1 class="viewer-title" id="viewer-title">Título do Dia</h1>
+    <p class="viewer-desc" id="viewer-desc">Descrição</p>
+    <div class="viewer-tags" id="viewer-tags"></div>
+  </div>
+
+  <div class="viewer-body" id="viewer-body"></div>
+</div>
+
+<!-- LOCKED MODAL -->
+<div class="modal-overlay hidden" id="modal-locked">
+  <div class="modal">
+    <div class="modal-icon">🔒</div>
+    <h3>Conteúdo Bloqueado</h3>
+    <p id="modal-locked-text">Este conteúdo ainda não foi liberado.</p>
+    <button class="btn btn-primary" onclick="closeModal()">Entendi</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ======================== DATA STORE ========================
+const DB_KEY = 'mentoria7_users';
+const SESSION_KEY = 'mentoria7_session';
+
+function getUsers() { try { return JSON.parse(localStorage.getItem(DB_KEY)) || {}; } catch { return {}; } }
+function saveUsers(u) { localStorage.setItem(DB_KEY, JSON.stringify(u)); }
+function getSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; } }
+function setSession(s) { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+// ======================== DAYS CONTENT ========================
+const DAYS = [
+  {
+    day: 1,
+    title: "Fundamentos do Mercado",
+    icon: "🎯",
+    coverClass: "cover-1",
+    duration: "45 min",
+    tags: ["Iniciante", "Estratégia", "Base"],
+    desc: "Entenda como o mercado financeiro funciona e por que a maioria perde dinheiro — e como você vai ser diferente.",
+    content: `
+      <h2>📖 Dia 1 — Fundamentos do Mercado: O Mapa para a sua Liberdade</h2>
+<p>Bem-vindo ao ponto de partida da sua nova realidade financeira. Hoje, vamos abrir a "caixa-preta" do mercado e transformar o que parece complexo em algo claro e acessível. Este é o alicerce de tudo o que você vai construir nos próximos dias.</p>
+
+<div class="highlight-box">
+  <p>💡 <strong>Insight chave:</strong> O mercado financeiro não é um cassino nem um bicho de sete cabeças. É, na verdade, o maior ecossistema de trocas do mundo. Quem opera com sorte, perde; quem opera com método e conhecimento, enriquece.</p>
+</div>
+
+<h3>O que é, afinal, o Mercado Financeiro?</h3>
+<p>Imagine o mercado como um imenso oceano global onde circulam trilhões de dólares a cada segundo. Nesse ambiente, pessoas, empresas e governos compram e vendem "ativos". Um ativo pode ser a moeda de um país (Dólar, Euro), ações de grandes empresas ou até contratos de ouro e petróleo.</p>
+<p>O mercado existe para que o dinheiro flua. Antigamente, apenas os "tubarões" (grandes bancos e fundos bilionários) tinham acesso a esse oceano. Hoje, graças à tecnologia, você pode pescar uma pequena fatia desse volume diário diretamente da sua casa.</p>
+
+<h3>Por que 90% dos iniciantes perdem dinheiro?</h3>
+<p>Antes de aprender a ganhar, você precisa entender por que a maioria perde. O erro não está no mercado, mas no comportamento humano. Os três principais vilões são:</p>
+<ul>
+  <li><strong>Operar sem Mapa (Estratégia):</strong> A maioria das pessoas entra no mercado baseada em "dicas" ou intuição. No mercado, a intuição é o caminho mais curto para o prejuízo.</li>
+  <li><strong>Falta de Proteção (Gestão):</strong> Iniciantes costumam arriscar todo o seu capital em uma única jogada, tentando "ficar rico amanhã". O investidor profissional foca em proteger o que tem para crescer com consistência.</li>
+  <li><strong>Pressa Emocional:</strong> O mercado é uma máquina que transfere dinheiro dos impacientes para os pacientes. Quem tem pressa de ganhar, acaba entregando o que tem para quem sabe esperar.</li>
+</ul>
+
+<h3>Os 3 Pilares do Investidor de Elite</h3>
+<p>Para ter resultados reais, você focará no que chamamos de "Tripé da Consistência":</p>
+<ol>
+  <li><strong>Análise Técnica:</strong> É a arte de ler os gráficos para identificar padrões de comportamento. Se você sabe ler o rastro, sabe para onde o dinheiro está indo.</li>
+  <li><strong>Gestão de Risco:</strong> É a matemática a seu favor. É o que garante que, mesmo que você erre algumas vezes, o seu lucro final seja positivo.</li>
+  <li><strong>Mentalidade (Psicologia):</strong> É a habilidade de manter a calma e seguir o plano, agindo com a frieza de um especialista, independentemente do que aconteça na tela.</li>
+</ol>
+
+<h3>Como o preço se move? (A Lei Universal)</h3>
+<p>Tudo no mercado se resume à <strong>Lei da Oferta e da Procura</strong>. Se há muita gente querendo comprar um ativo e poucos querendo vender, o preço sobe. Se há muitos vendedores "desovando" um ativo e poucos interessados, o preço cai.</p>
+<p>O seu trabalho como investidor não é inventar o movimento, mas sim identificar para onde a força maior está empurrando o preço e "pegar carona" nesse movimento.</p>
+
+<div class="tip-box">
+  <p>✅ <strong>Tarefa do dia (O Desafio da Observação):</strong> Hoje, você não vai operar. Sua tarefa é observar o mundo ao seu redor com olhos de investidor. Procure uma notícia econômica simples (como o valor do Dólar ou do combustível) e tente identificar: por que esse preço subiu ou caiu hoje? Houve mais procura ou menos oferta? Comece a treinar seu cérebro para entender o fluxo do dinheiro.</p>
+</div>
+
+<h3>Conclusão</h3>
+<p>Hoje você saiu da arquibancada e deu o primeiro passo no gramado. Você já sabe o que é o mercado e, mais importante, já sabe o que NÃO fazer para não ser mais um na estatística dos que perdem. Amanhã, vamos mergulhar na linguagem visual do dinheiro: os gráficos e as velas japonesas. Prepare-se, pois sua visão sobre o dinheiro nunca mais será a mesma.</p>
+    `
+  },
+  {
+    day: 2,
+    title: "Leitura de Gráficos",
+    icon: "📊",
+    coverClass: "cover-2",
+    duration: "50 min",
+    tags: ["Análise Técnica", "Gráficos", "Padrões"],
+    desc: "Aprenda a interpretar candlesticks e identificar padrões de alta e baixa com precisão.",
+    content: `
+      <h2>📖 Dia 2 — A Linguagem das Velas: Como Ler o Gráfico e Prever o Futuro</h2>
+<p>Ontem você entendeu o que é o mercado. Hoje, você vai aprender a "ler" a linguagem que ele fala. Muitas pessoas se assustam ao ver um gráfico cheio de cores, mas a partir de agora, você verá ali um rastro claro deixado pelo dinheiro.</p>
+
+<div class="highlight-box">
+  <p>💡 <strong>Insight chave:</strong> O gráfico não é apenas um amontoado de linhas; é a representação visual das emoções humanas (medo e ganância). Quem entende o gráfico, entende o que o mundo está sentindo antes de tomar uma decisão.</p>
+</div>
+
+<h3>O que são os Candles (As Velas Japonesas)?</h3>
+<p>A forma mais eficiente de ler o mercado é através das "velas". Elas recebem esse nome porque têm um corpo e um pavio. Cada vela conta a história do preço em um determinado período de tempo (ex: 1 minuto).</p>
+<ul>
+  <li><strong>Vela Verde (Alta):</strong> O preço subiu. Ela abre embaixo e fecha em cima. Mostra que os compradores estão no controle.</li>
+  <li><strong>Vela Vermelha (Baixa):</strong> O preço caiu. Ela abre em cima e fecha embaixo. Mostra que os vendedores estão dominando.</li>
+  <li><strong>O Pavio (Sombra):</strong> Aquela linha fina acima ou abaixo da vela. Ela mostra que o preço tentou chegar lá, mas foi "rejeitado". Isso é um sinal valioso de que o mercado está perdendo a força naquela direção.</li>
+</ul>
+
+<h3>Para onde o vento sopra? (Tendências)</h3>
+<p>O mercado nunca se move em linha reta; ele se move em ondas. Identificar a tendência é como saber para onde a correnteza de um rio está indo antes de pular nele.</p>
+<ul>
+  <li><strong>Tendência de Alta:</strong> Imagine uma escada subindo. O preço faz um topo, desce um pouco (fundo), mas o próximo topo é sempre mais alto que o anterior. Aqui, o foco é sempre procurar oportunidades de compra.</li>
+  <li><strong>Tendência de Baixa:</strong> Uma escada descendo. Topos e fundos cada vez mais baixos. Aqui, o lucro vem acompanhando a queda.</li>
+  <li><strong>Lateralização:</strong> Quando o preço fica "preso" entre dois níveis, sem subir nem descer. Para o iniciante, este é o momento de ter paciência e aguardar uma definição.</li>
+</ul>
+
+<h3>Suporte e Resistência: O Chão e o Teto</h3>
+<p>Este é o conceito mais poderoso que você aprenderá hoje. Imagine uma bola de basquete dentro de uma sala:</p>
+<ol>
+  <li><strong>O Suporte (Chão):</strong> É uma zona de preço onde o mercado "acha barato". Quando o preço toca ali, ele tende a quicar e subir, como a bola batendo no chão.</li>
+  <li><strong>A Resistência (Teto):</strong> É uma zona onde o mercado "acha caro". Quando o preço sobe e toca nesse nível, ele tende a encontrar dificuldade e voltar a cair, como a bola batendo no teto.</li>
+</ol>
+
+<div class="highlight-box">
+  <p><strong>Exemplo Prático:</strong> Se você percebe que o preço do Euro tentou ultrapassar o nível de 1,10 três vezes e sempre "bateu e voltou", você acabou de identificar uma <strong>Resistência</strong>. Na quarta vez que ele chegar lá, você já sabe que há uma grande chance de ele cair novamente.</p>
+</div>
+
+<div class="tip-box">
+  <p>✅ <strong>Tarefa do dia:</strong> Treine seu "olho clínico". Procure na internet qualquer imagem de "gráfico de velas" (candlestick chart). Sem usar nenhuma ferramenta, tente identificar visualmente: onde está o "chão" (suporte) e onde está o "teto" (resistência)? Onde estão as "escadas" (tendências)?</p>
+</div>
+
+<h3>Conclusão</h3>
+<p>Agora você não é mais um cego no mercado. Você entende se o preço está subindo, caindo ou se está batendo em um teto. Você começou a decifrar a linguagem do dinheiro. Mas eu sei o que você está pensando: <i>"E se eu ficar na dúvida se é um suporte real?"</i>. Amanhã, vou te apresentar quem será o seu GPS nessa jornada: o seu Gestor de Contas.</p>
+    `
+  },
+  {
+    day: 3,
+    title: "Gestor de Contas",
+    icon: "📈",
+    coverClass: "cover-3",
+    duration: "55 min",
+    tags: ["Indicadores", "RSI", "Médias"],
+    desc: "O Fim da Caminhada Solitária.",
+    content: `
+     <h2>📖 Dia 3 — Seu Mentor Particular: O Fim da Caminhada Solitária</h2>
+<p>Nos últimos dois dias, você aprendeu as bases do mercado e a linguagem dos gráficos. Mas, sejamos sinceros: estar diante da tela sozinho, com o seu dinheiro em jogo, pode gerar dúvidas. "Será que este suporte é real?", "Este é o melhor horário para operar?". Hoje, você vai descobrir o segredo dos grandes investidores: eles nunca caminham sozinhos.</p>
+
+<div class="highlight-box">
+  <p>💡 <strong>Insight chave:</strong> O maior erro do iniciante é achar que precisa ser um "gênio solitário". No mercado profissional, o sucesso é fruto de suporte técnico e acompanhamento de quem já conhece o caminho.</p>
+</div>
+
+<h3>O que é um Gestor de Contas?</h3>
+<p>Imagine que você decidiu escalar uma montanha perigosa pela primeira vez. Você pode tentar ir sozinho, seguindo um mapa que acabou de aprender a ler, ou pode contratar um guia veterano que já subiu aquela montanha mil vezes. O <strong>Gestor de Contas</strong> é o seu guia veterano no mercado financeiro.</p>
+<p>Ele é um especialista experiente cujo papel fundamental é auxiliar você na tomada de decisões. Ele não é apenas um suporte técnico para "arrumar senhas", mas um mentor estratégico que ajuda a filtrar as melhores oportunidades do dia.</p>
+
+<h3>O Diferencial Exclusivo: Acompanhamento Vitalício e Gratuito</h3>
+<p>Muitos cursos cobram fortunas por "mentorias" que duram apenas um mês. Aqui, acreditamos que o aprendizado é contínuo. Por isso, apresentamos um modelo de parceria real:</p>
+<ul>
+  <li><strong>Contato Diário:</strong> O seu gestor entrará em contato com você para alinhar as expectativas do mercado naquele dia.</li>
+  <li><strong>Custo Zero:</strong> Este serviço é oferecido de forma gratuita para garantir que você tenha a melhor experiência possível na plataforma.</li>
+  <li><strong>Para Sempre:</strong> O acompanhamento é vitalício. Enquanto você estiver no mercado, o seu gestor estará ao seu lado.</li>
+</ul>
+
+<h3>Como ele ajuda você a lucrar com segurança?</h3>
+<p>O mercado tem horários "traiçoeiros" e horários "lucrativos". O seu gestor atua como o seu GPS:</p>
+<ul>
+  <li><strong>A Escolha do Momento:</strong> Ele te indicará os horários em que o mercado está mais técnico (respeitando melhor os suportes e resistências que você aprendeu ontem).</li>
+  <li><strong>Segunda Opinião:</strong> Antes de tomar uma decisão importante, você tem a segurança de validar seu raciocínio com um especialista.</li>
+  <li><strong>Gestão Emocional:</strong> Nos dias de euforia ou medo, ele será a voz da razão que te manterá dentro do plano para proteger o seu capital.</li>
+</ul>
+
+<div class="highlight-box">
+  <p><strong>Exemplo Prático:</strong> Imagine que você vê uma oportunidade de compra, mas o seu Gestor de Contas te envia um alerta dizendo: "Cuidado, em 5 minutos sairá uma notícia econômica nos EUA que pode gerar muita volatilidade". Esse simples aviso salvou você de uma perda desnecessária. Isso é valor real.</p>
+</div>
+
+<div class="tip-box">
+  <p>✅ <strong>Tarefa do dia:</strong> Reflita sobre sua jornada até aqui. Como seria sua confiança se, ao abrir o computador amanhã, você recebesse uma mensagem de um especialista dizendo exatamente quais são as melhores janelas de oportunidade para o seu dia? Prepare-se mentalmente para essa parceria.</p>
+</div>
+
+<h3>Conclusão</h3>
+<p>Ter um Gestor de Contas é a diferença entre "tentar a sorte" e "executar um plano". Você não está mais sozinho contra o mercado; agora você tem um aliado de peso. Com essa segurança, estamos prontos para o próximo passo: aprender a gerenciar o seu dinheiro como um verdadeiro profissional de elite. Amanhã, falaremos sobre a Matemática da Riqueza.</p>
+    `
+  },
+  {
+    day: 4,
+    title: "Gestão de Banca",
+    icon: "💰",
+    coverClass: "cover-4",
+    duration: "40 min",
+    tags: ["Money Management", "Risco", "Capital"],
+    desc: "A regra de ouro que separa quem dura no mercado de quem quebra em semanas.",
+    content: `
+      <h2>📖 Dia 4 — A Matemática da Riqueza: Protegendo e Crescendo sua Banca</h2>
+<p>Ontem você descobriu que terá um aliado de peso ao seu lado. Hoje, vamos falar sobre o coração do trading profissional: a <strong>Gestão de Banca</strong>. É aqui que os amadores são filtrados e os profissionais são coroados. No mercado, o seu capital é a sua munição; se a munição acaba, o jogo termina para você.</p>
+
+<div class="highlight-box">
+  <p>💡 <strong>Insight chave:</strong> O objetivo de um trader de elite não é "ficar rico em um dia", mas sim ser impossível de ser quebrado pelo mercado. A riqueza não vem de uma grande tacada, mas da repetição de pequenos ganhos consistentes.</p>
+</div>
+
+<h3>O que é a Gestão de Banca?</h3>
+<p>Gerir sua banca é aplicar regras matemáticas rígidas para decidir quanto você pode investir em cada operação. Imagine que você tem uma empresa com um estoque de R$ 10.000. Você não venderia todo o seu estoque para um único cliente que você acabou de conhecer, certo? No mercado, sua banca é o seu estoque. Nós a protegemos para que ela possa trabalhar por nós.</p>
+
+<h3>A Força da Abordagem Conservadora: A Regra dos 0,25%</h3>
+<p>Muitos iniciantes entram no mercado com a mentalidade de "dobrar o dinheiro hoje". Essa é a receita certa para o fracasso. Nós defendemos o <strong>Crescimento Blindado</strong>. Vamos analisar um exemplo real:</p>
+<ul>
+  <li><strong>Capital Inicial:</strong> US$ 10.000 (Sua banca principal).</li>
+  <li><strong>Meta Diária:</strong> Aproximadamente <strong>0,25%</strong> sobre o capital.</li>
+  <li><strong>Resultado:</strong> Isso significa buscar um lucro de <strong>US$ 25 por dia</strong>.</li>
+</ul>
+<p>Pode parecer pouco à primeira vista, mas US$ 25 com o dólar a R$ 5,00 representam <strong>R$ 125,00 por dia</strong>. Em um mês (22 dias úteis), isso soma <strong>R$ 2.750,00 de renda extra</strong>. Tudo isso arriscando apenas uma fração mínima do seu capital e operando com tranquilidade.</p>
+
+<h3>O Poder dos Juros Compostos</h3>
+<p>Quando você busca lucros pequenos e consistentes, o efeito dos juros compostos começa a agir. Conforme sua banca cresce, esses 0,25% passam a representar valores cada vez maiores em dinheiro real, sem que você precise aumentar o seu risco proporcionalmente. É assim que grandes fortunas são construídas silenciosamente.</p>
+
+<h3>O Papel do Gestor de Contas na sua Gestão</h3>
+<p>Manter a disciplina é o maior desafio. É aqui que o seu Gestor de Contas se torna fundamental:</p>
+<ul>
+  <li><strong>Limite de Perda (Stop Loss):</strong> Se o dia estiver difícil, o gestor te ajudará a parar no momento certo para que você volte no dia seguinte com seu capital intacto.</li>
+  <li><strong>Controle de Metas:</strong> Ao atingir seus 0,25%, ele será o primeiro a te parabenizar e sugerir que você feche a plataforma. Ele protege você de você mesmo.</li>
+  <li><strong>Planejamento Matemático:</strong> Ele te ajudará a ajustar esses cálculos conforme sua banca evolui, garantindo que você nunca saia dos trilhos.</li>
+</ul>
+
+<div class="tip-box">
+  <p>✅ <strong>Tarefa do dia:</strong> Pegue um papel e caneta. Escreva qual seria o valor de 0,25% de um capital inicial que você teria disponível hoje. Visualize esse lucro entrando diariamente na sua conta de forma consistente. Como esse valor mudaria o seu mês? Agora Imagine 0,25% de US$10.000</p>
+</div>
+
+<h3>Conclusão</h3>
+<p>Quem tem pressa no mercado, tem pressa de perder. Ao aceitar a meta de 0,25%, você retira toda a pressão das suas costas e transforma o trading em uma atividade prazerosa e segura. Agora que você já tem o mapa, o guia e o escudo, amanhã vamos aprender a usar a sua espada: as Estratégias de Entrada.</p>
+    `
+  },
+  {
+    day: 5,
+    title: "Estratégias de Entrada",
+    icon: "🎯",
+    coverClass: "cover-5",
+    duration: "60 min",
+    tags: ["Estratégia", "Setup", "Entrada"],
+    desc: "Três setups validados com alta assertividade para operar na Quotex com confiança.",
+    content: `
+      <h2>📖 Dia 5 — O Momento do Clique: Estratégias de Entrada para Iniciantes</h2>
+<p>Você já tem o mapa, o guia e o escudo. Agora, é hora de aprender a usar a sua ferramenta de trabalho. No mercado financeiro, não clicamos em botões por "achar" que algo vai acontecer; clicamos porque o mercado nos deu um sinal claro. Hoje, você vai aprender a ser um sniper: paciência total e precisão no disparo.</p>
+
+<div class="highlight-box">
+  <p>💡 <strong>Insight chave:</strong> O trader de sucesso é, antes de tudo, um exímio observador. A melhor operação do dia é aquela que você teve a disciplina de esperar o momento exato para executar.</p>
+</div>
+
+<h3>A Estratégia do "Reteste": A Favorita dos Profissionais</h3>
+<p>Lembra do que aprendemos no Dia 2 sobre Suporte e Resistência (o chão e o teto)? A estratégia mais segura para quem está começando utiliza exatamente esse conceito através do "Reteste".</p>
+<ol>
+  <li><strong>O Rompimento:</strong> O preço ganha força e atravessa uma Resistência (teto).</li>
+  <li><strong>A Mudança de Papel:</strong> Aquele antigo teto agora se transforma em um novo Suporte (chão).</li>
+  <li><strong>A Entrada:</strong> Quando o preço volta para "tocar" nesse novo chão pela primeira vez, ele tende a ganhar impulso para subir novamente. <strong>É aqui que você entra.</strong></li>
+</ol>
+<p><strong>Por que funciona?</strong> Porque o mercado confirmou que aquele preço, que antes era considerado caro, agora é visto como uma oportunidade de compra pelos grandes investidores.</p>
+
+<h3>Filtros de Segurança: Quando NÃO entrar</h3>
+<p>Saber quando não operar é tão lucrativo quanto saber quando clicar. Evite entradas se:</p>
+<ul>
+  <li><strong>Velas com Pavios Gigantes:</strong> Indicam muita indecisão e briga de preços. O mar está agitado demais para navegar.</li>
+  <li><strong>Contra a Tendência:</strong> Se a "escada" é claramente de baixa, não tente adivinhar o fundo para comprar. Siga o fluxo do dinheiro.</li>
+  <li><strong>Próximo a Notícias:</strong> Grandes anúncios econômicos podem fazer o gráfico ignorar qualquer estratégia técnica por alguns minutos.</li>
+</ul>
+
+<h3>O Checklist do Especialista</h3>
+<p>Antes de realizar qualquer operação, faça estas três perguntas rápidas para si mesmo:</p>
+<ul>
+  <li><strong>1. Eu identifiquei a tendência principal?</strong> (O rio está a meu favor?)</li>
+  <li><strong>2. O preço está em uma região de Suporte ou Resistência?</strong> (Estou pisando em terra firme?)</li>
+  <li><strong>3. O meu Gestor de Contas validou que este horário é propício?</strong> (Meu GPS deu sinal verde?)</li>
+</ul>
+
+<div class="highlight-box">
+  <p><strong>Exemplo Prático:</strong> Imagine que o gráfico rompeu um teto às 09:00h. Às 09:15h, ele volta lentamente para tocar naquele mesmo ponto. Você percebe que ele não consegue cair abaixo dali. Esse é o seu sinal. Você executa sua estratégia, busca sua pequena meta de 0,25% e encerra o dia com a sensação de dever cumprido.</p>
+</div>
+
+<div class="tip-box">
+  <p>✅ <strong>Tarefa do dia:</strong> Imagine que você tem o gráfico na sua frente agora. Visualize o preço rompendo um "teto" e voltando para "descansar" sobre ele. Tente desenhar esse movimento em um papel. Treinar a sua mente para visualizar o padrão antes que ele aconteça é o segredo da execução perfeita.</p>
+</div>
+
+<h3>Conclusão</h3>
+<p>Ter uma estratégia clara retira 90% da ansiedade de operar. Você não precisa adivinhar; você só precisa esperar o seu padrão aparecer. Amanhã, vamos tratar do fator que faz até os melhores estrategistas falharem se não estiverem preparados: a sua mente. Vamos dominar a Psicologia do Trader.</p>
+    `
+  },
+  {
+    day: 6,
+    title: "Psicologia do Trader",
+    icon: "🧠",
+    coverClass: "cover-6",
+    duration: "45 min",
+    tags: ["Mindset", "Emoções", "Disciplina"],
+    desc: "O que diferencia um trader consistente é a cabeça — não a estratégia. Descubra como controlar suas emoções.",
+    content: `
+     <h2>📖 Dia 6 — O Cérebro do Trader: A Psicologia por trás do Lucro</h2>
+<p>Ontem você aprendeu as estratégias técnicas para entrar no mercado. Mas aqui está a verdade nua e crua: você pode ter a melhor estratégia do mundo, mas se não dominar a sua mente, o mercado levará o seu dinheiro. O trading é 20% técnica e 80% psicologia.</p>
+
+<div class="highlight-box">
+  <p>💡 <strong>Insight chave:</strong> O mercado financeiro é um ambiente desenhado para testar seus limites emocionais. O lucro não vai para quem é o mais inteligente, mas para quem tem o maior autocontrole.</p>
+</div>
+
+<h3>Os Vilões da Sua Mente</h3>
+<p>No momento em que você coloca seu capital em risco, seu cérebro ativa instintos ancestrais de sobrevivência. Você precisa aprender a reconhecer e dominar estes três vilões:</p>
+<ul>
+  <li><strong>A Ganância:</strong> Ela aparece quando você ganha uma operação e sente que "está em um dia de sorte". Ela te faz ignorar a gestão de banca e arriscar mais do que deveria, levando ao erro fatal.</li>
+  <li><strong>O Medo:</strong> O medo de perder faz você hesitar em entradas perfeitas ou fechar operações lucrativas cedo demais por insegurança.</li>
+  <li><strong>A Ansiedade (Vingança):</strong> Após uma perda, o impulso de "recuperar" o dinheiro imediatamente faz você operar sem estratégia. Lembre-se: o mercado não te deve nada.</li>
+</ul>
+
+<h3>Como Manter a Disciplina de Ferro?</h3>
+<p>O investidor profissional não é alguém que não sente emoções, mas alguém que não age baseado nelas. Para isso, utilizamos três ferramentas fundamentais:</p>
+<ol>
+  <li><strong>A Regra dos 0,25%:</strong> Quando sua meta é pequena e conservadora, como vimos no Dia 4, a pressão emocional desaparece. É fácil manter a calma quando você sabe que seu risco é controlado.</li>
+  <li><strong>Foco no Processo, não no Dinheiro:</strong> Pare de olhar para o saldo e comece a olhar para a execução. Se você seguiu a estratégia perfeitamente, o dia foi um sucesso, independentemente do resultado financeiro imediato.</li>
+  <li><strong>O Poder do "Stop":</strong> Saber a hora de parar é a maior vitória de um trader. Bateu a meta? Saia. Bateu o limite de perda? Saia. O mercado estará lá amanhã.</li>
+</ol>
+
+<h3>O Suporte Psicológico do Gestor de Contas</h3>
+<p>É aqui que o seu <strong>Gestor de Contas</strong> se torna o seu porto seguro. Ele é a voz da razão externa que você não terá em momentos de tensão. Ele te ajuda a manter a disciplina quando o seu emocional tenta te sabotar, garantindo que você nunca se desvie do plano de longo prazo.</p>
+
+<div class="highlight-box">
+  <p><strong>Exemplo Prático:</strong> Imagine que você perdeu uma operação e sente aquele calor no rosto e a vontade de clicar novamente para recuperar. Se você estivesse sozinho, poderia quebrar sua banca. Com o suporte adequado, você tem um guia para te dizer: "Respire, feche a plataforma por 1 hora e volte quando a mente estiver fria".</p>
+</div>
+
+<div class="tip-box">
+  <p>✅ <strong>Tarefa do dia:</strong> Identifique seu perfil emocional. Você é uma pessoa que age por impulso ou que trava diante do risco? Escreva em um papel: "Eu sou um executor de processos, não um apostador". Repita isso até que sua mente entenda que a disciplina é o seu maior ativo.</p>
+</div>
+
+<h3>Conclusão</h3>
+<p>Vencer no mercado é, antes de tudo, vencer a si mesmo. Ao dominar suas emoções e aceitar a consistência sobre a euforia, você se torna parte da elite que realmente lucra. Amanhã, vamos ver como tudo isso se une na prática: você vai entender como funcionam as Operações ao Vivo com acompanhamento.</p>
+    `
+  },
+  {
+    day: 7,
+    title: "Operação ao Vivo",
+    icon: "🚀",
+    coverClass: "cover-7",
+    duration: "90 min",
+    tags: ["Prática", "Ao Vivo", "Conclusão"],
+    desc: "Último dia: aplique tudo na prática com um guia passo a passo de uma sessão de operações real.",
+    content: `
+     <h2>📖 Dia 7 — A Magia do "Ao Vivo": Aprendendo na Prática com Especialistas</h2>
+<p>Você percorreu um longo caminho: entendeu os fundamentos, aprendeu a ler gráficos, conheceu o papel do seu Gestor, dominou a matemática da banca e blindou seu psicológico. Hoje, vamos falar sobre o "divisor de águas" na vida de um investidor: o acompanhamento em tempo real.</p>
+
+<div class="highlight-box">
+  <p>💡 <strong>Insight chave:</strong> A teoria constrói a base, mas a prática assistida constrói a maestria. Ver um especialista tomar decisões em tempo real acelera seu aprendizado em meses, poupando você de erros que custam caro.</p>
+</div>
+
+<h3>O que são as Operações ao Vivo?</h3>
+<p>Imagine ter a oportunidade de entrar em uma sala virtual onde um trader profissional compartilha a própria tela. Você não está apenas ouvindo uma aula; você está vendo o mercado pulsar e observando como um veterano aplica, na prática, tudo o que você aprendeu nestes eBooks.</p>
+<p>Nas operações ao vivo, o especialista analisa o cenário, explica o porquê de cada marcação e identifica as janelas de oportunidade exatas para buscar os 0,25% de meta diária.</p>
+
+<h3>Os Benefícios do Acompanhamento Direto</h3>
+<ul>
+  <li><strong>Confiança Blindada:</strong> Ao ver um profissional executando a mesma estratégia que você aprendeu, aquela insegurança natural do iniciante desaparece. Você entende que o método funciona.</li>
+  <li><strong>Filtro de Ruído:</strong> O mercado muitas vezes tenta nos enganar com falsos movimentos. No ao vivo, o especialista te ensina a ignorar o "barulho" e focar apenas no que realmente importa.</li>
+  <li><strong>Aprendizado por Osmose:</strong> Você começa a absorver a calma, o vocabulário e a paciência do mentor. Você aprende a "sentir" o tempo certo de cada operação.</li>
+</ul>
+
+<h3>O Papel do Gestor de Contas no Seu Aprendizado</h3>
+<p>O seu <strong>Gestor de Contas</strong> é quem garante que você esteja preparado para essas sessões. Ele te ajudará a organizar sua rotina para que você possa participar dos melhores momentos de operação e, após as sessões, ele estará disponível para tirar dúvidas específicas sobre o que aconteceu.</p>
+<ul>
+  <li><strong>Feedback imediato:</strong> "Por que entramos naquela vela?" ou "Por que ignoramos aquela resistência?". Ter essas respostas na hora é o que diferencia quem lucra de quem apenas tenta.</li>
+</ul>
+
+<div class="highlight-box">
+  <p><strong>Exemplo Prático:</strong> Durante uma operação ao vivo, o gráfico chega em um suporte que parece perfeito. Você sente o impulso de clicar, mas o mentor diz: "Esperem, o volume de venda ainda está muito alto, vamos aguardar a próxima vela confirmar". O mercado rompe o suporte. O mentor salvou seu capital com uma única frase. Isso é o valor da experiência.</p>
+</div>
+
+<div class="tip-box">
+  <p>✅ <strong>Tarefa do dia:</strong> Prepare seu ambiente. Para operar ao vivo, você precisa de foco. Escolha um lugar silencioso da sua casa e imagine-se lá, operando ao lado de um mestre. Como seria sua tranquilidade sabendo que cada clique seu está sendo validado por um profissional?</p>
+</div>
+
+<h3>Conclusão</h3>
+<p>Operar ao vivo é o "atalho" mais seguro para a consistência. É onde a teoria se torna lucro real e a dúvida se torna convicção. Você concluiu a parte teórica com excelência. Amanhã, no nosso último dia, daremos o passo final: vou te mostrar como acessar a plataforma, configurar sua conta e dar o primeiro passo oficial na sua nova jornada financeira.</p>
+    `
+  }
+];
+
+const DAY8 = {
+  day: 8,
+  title: "Acesso à Plataforma",
+  icon: "⭐",
+  coverClass: "cover-8",
+  duration: "—",
+  tags: ["Acesso", "Quotex", "Plataforma"],
+  desc: "Suas credenciais de acesso exclusivo à plataforma de operações, liberado após completar os 7 dias.",
+};
+
+// ======================== UNLOCK LOGIC ========================
+function countBusinessDays(startDate, endDate) {
+  let count = 0;
+  let d = new Date(startDate);
+  d.setHours(0,0,0,0);
+  const end = new Date(endDate);
+  end.setHours(0,0,0,0);
+  while (d < end) {
+    d.setDate(d.getDate() + 1);
+    const day = d.getDay();
+    if (day !== 0 && day !== 6) count++;
+  }
+  return count;
+}
+
+function getUnlockedDays(user) {
+  // Returns how many days (1-7) are unlocked based on business days since registration
+  const regDate = new Date(user.registeredAt);
+  const now = new Date();
+  const bd = countBusinessDays(regDate, now);
+  // Day 1 is always unlocked (0 business days passed after registration)
+  return Math.min(7, bd + 1);
+}
+
+function isDayCompleted(user, day) {
+  return (user.completed || []).includes(day);
+}
+
+function allDaysCompleted(user) {
+  for (let i = 1; i <= 7; i++) if (!isDayCompleted(user, i)) return false;
+  return true;
+}
+
+// ======================== AUTH LOGIC ========================
+function showForm(name) {
+  ['login','signup','forgot'].forEach(f => {
+    document.getElementById('form-'+f).classList.add('hidden');
+  });
+  document.getElementById('form-'+name).classList.remove('hidden');
+  clearAlerts();
+}
+
+function clearAlerts() {
+  ['login-alert','signup-alert','forgot-alert'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.className = 'hidden'; el.innerHTML = ''; }
+  });
+}
+
+function showAlert(id, type, msg) {
+  const el = document.getElementById(id);
+  const icons = { error: '⚠️', success: '✅', info: 'ℹ️' };
+  el.className = 'alert alert-'+type;
+  el.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-password').value;
+  if (!email || !pass) { showAlert('login-alert','error','Preencha todos os campos.'); return; }
+  const users = getUsers();
+  const user = users[email];
+  if (!user || user.password !== btoa(pass)) {
+    showAlert('login-alert','error','E-mail ou senha incorretos.');
+    return;
+  }
+  setSession({ email });
+  loadDashboard();
+  showPage('dashboard');
+}
+
+function doSignup() {
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const pass = document.getElementById('signup-password').value;
+  const confirm = document.getElementById('signup-confirm').value;
+  if (!name || !email || !pass || !confirm) { showAlert('signup-alert','error','Preencha todos os campos.'); return; }
+  if (!email.includes('@')) { showAlert('signup-alert','error','E-mail inválido.'); return; }
+  if (pass.length < 6) { showAlert('signup-alert','error','A senha deve ter no mínimo 6 caracteres.'); return; }
+  if (pass !== confirm) { showAlert('signup-alert','error','As senhas não coincidem.'); return; }
+  const users = getUsers();
+  if (users[email]) { showAlert('signup-alert','error','E-mail já cadastrado. Faça login.'); return; }
+  users[email] = {
+    name, email,
+    password: btoa(pass),
+    registeredAt: new Date().toISOString(),
+    completed: []
+  };
+  saveUsers(users);
+  setSession({ email });
+  toast('Conta criada! Bem-vindo(a), ' + name.split(' ')[0] + '! 🎉', 'success');
+  loadDashboard();
+  showPage('dashboard');
+}
+
+function doForgot() {
+  const email = document.getElementById('forgot-email').value.trim();
+  if (!email) { showAlert('forgot-alert','error','Digite seu e-mail.'); return; }
+  const users = getUsers();
+  if (users[email]) {
+    showAlert('forgot-alert','success','Se esse e-mail estiver cadastrado, você receberá as instruções em breve. (Demo: sua senha está salva localmente)');
+  } else {
+    showAlert('forgot-alert','info','E-mail não encontrado. Verifique ou crie uma nova conta.');
+  }
+}
+
+function doLogout() {
+  clearSession();
+  showPage('auth');
+  toast('Até logo! 👋', 'info');
+}
+
+function togglePass(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+  else { input.type = 'password'; btn.textContent = '👁'; }
+}
+
+// ======================== PAGE ROUTING ========================
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ======================== DASHBOARD ========================
+let currentUser = null;
+
+function loadDashboard() {
+  const session = getSession();
+  if (!session) { showPage('auth'); return; }
+  const users = getUsers();
+  currentUser = users[session.email];
+  if (!currentUser) { clearSession(); showPage('auth'); return; }
+
+  // Nav
+  const initials = currentUser.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  document.getElementById('nav-avatar').textContent = initials;
+  document.getElementById('nav-avatar-v').textContent = initials;
+  document.getElementById('nav-username').textContent = currentUser.name.split(' ')[0];
+
+  renderProgress();
+  renderCards();
+  updateHeroCta();
+}
+
+function updateHeroCta() {
+  // Find first available + not completed day
+  const unlocked = getUnlockedDays(currentUser);
+  const completed = currentUser.completed || [];
+  let nextDay = null;
+  for (let i = 1; i <= unlocked; i++) {
+    if (!completed.includes(i)) { nextDay = i; break; }
+  }
+  const btn = document.getElementById('hero-cta-btn');
+  if (nextDay) {
+    btn.textContent = `▶ Acessar Dia ${nextDay}`;
+    btn.onclick = () => openDay(nextDay);
+  } else if (allDaysCompleted(currentUser)) {
+    btn.textContent = '⭐ Ver Acesso à Plataforma';
+    btn.onclick = () => openDay8();
+  } else {
+    btn.textContent = '🔒 Aguardando liberação';
+    btn.onclick = () => toast('O próximo dia será liberado no próximo dia útil!', 'info');
+  }
+}
+
+function renderProgress() {
+  const unlocked = getUnlockedDays(currentUser);
+  const completed = (currentUser.completed || []).filter(d => d <= 7).length;
+  const pct = Math.round((completed / 7) * 100);
+
+  document.getElementById('progress-count').textContent = `${completed} de 7 concluídos`;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Seu progresso — ${pct}%`;
+
+  // Steps
+  const steps = document.getElementById('progress-steps');
+  steps.innerHTML = '';
+  for (let i = 1; i <= 7; i++) {
+    const done = (currentUser.completed || []).includes(i);
+    const avail = i <= unlocked;
+    const cls = done ? 'done' : (avail ? 'available' : '');
+    const icon = done ? '✓' : (avail ? '▶' : '○');
+    steps.innerHTML += `<div class="progress-step ${cls}">${icon} Dia ${i}</div>`;
+  }
+
+  const label = document.getElementById('days-unlocked-label');
+  label.textContent = `${unlocked} de 7 dias liberados`;
+}
+
+function renderCards() {
+  const unlocked = getUnlockedDays(currentUser);
+  const completed = currentUser.completed || [];
+
+  // Main carousel
+  const track = document.getElementById('carousel-main');
+  track.innerHTML = '';
+  DAYS.forEach(d => {
+    const isUnlocked = d.day <= unlocked;
+    const isDone = completed.includes(d.day);
+    track.appendChild(buildCard(d, isUnlocked, isDone));
+  });
+
+  // Special carousel
+  const special = document.getElementById('carousel-special');
+  special.innerHTML = '';
+  const allDone = allDaysCompleted(currentUser);
+  special.appendChild(buildDay8Card(allDone));
+}
+
+function buildCard(d, isUnlocked, isDone) {
+  const card = document.createElement('div');
+  card.className = `day-card ${isUnlocked ? '' : 'locked'}`;
+
+  let badgeHtml = '';
+  if (isDone) badgeHtml = `<div class="card-status-badge badge-done">✓ Concluído</div>`;
+  else if (isUnlocked) badgeHtml = `<div class="card-status-badge badge-available">● Disponível</div>`;
+  else badgeHtml = `<div class="card-status-badge badge-locked">🔒 Bloqueado</div>`;
+
+  const lockHtml = isUnlocked ? '' : `
+    <div class="lock-overlay">
+      <div class="lock-icon">🔒</div>
+      <div class="lock-text">Disponível em breve</div>
+    </div>
+  `;
+
+  const progressHtml = isDone ? `<div class="card-progress-mini"><div class="card-progress-fill" style="width:100%"></div></div>` : '';
+
+  card.innerHTML = `
+    <div class="card-thumb">
+      <div class="card-cover">
+        <div class="card-cover-bg ${d.coverClass}"></div>
+        <div class="card-cover-pattern"></div>
+        <div class="card-day-num">${String(d.day).padStart(2,'0')}</div>
+        <div class="card-icon-large">${d.icon}</div>
+        <div class="card-title-cover">${d.title}</div>
+        ${badgeHtml}
+      </div>
+      ${lockHtml}
+    </div>
+    <div class="card-info">
+      <div class="card-meta">Dia ${d.day} · ${d.duration}</div>
+      <div class="card-name">${d.title}</div>
+      ${progressHtml}
+    </div>
+  `;
+
+  if (isUnlocked) {
+    card.onclick = () => openDay(d.day);
+  } else {
+    card.onclick = () => showLockedModal(d.day);
+  }
+
+  return card;
+}
+
+function buildDay8Card(isUnlocked) {
+  const card = document.createElement('div');
+  card.className = `day-card card-special ${isUnlocked ? '' : 'locked'}`;
+
+  const badgeHtml = isUnlocked
+    ? `<div class="card-status-badge badge-special">⭐ Liberado</div>`
+    : `<div class="card-status-badge badge-locked">🔒 Complete os 7 dias</div>`;
+
+  const lockHtml = isUnlocked ? '' : `
+    <div class="lock-overlay">
+      <div class="lock-icon">🔒</div>
+      <div class="lock-text">Conclua os 7 dias</div>
+    </div>
+  `;
+
+  card.innerHTML = `
+    <div class="card-thumb">
+      <div class="card-cover">
+        <div class="card-cover-bg cover-8"></div>
+        <div class="card-cover-pattern"></div>
+        <div class="card-day-num" style="color:rgba(245,197,24,0.15)">08</div>
+        <div class="card-icon-large">⭐</div>
+        <div class="card-title-cover">Acesso à Plataforma</div>
+        ${badgeHtml}
+      </div>
+      ${lockHtml}
+    </div>
+    <div class="card-info">
+      <div class="card-meta">Conteúdo Final · Exclusivo</div>
+      <div class="card-name" style="color:${isUnlocked?'var(--gold)':''}">Acesso à Plataforma</div>
+    </div>
+  `;
+
+  card.onclick = () => {
+    if (isUnlocked) openDay8();
+    else {
+      const remaining = 7 - (currentUser.completed || []).filter(d=>d<=7).length;
+      showLockedModal(null, `Você ainda precisa concluir ${remaining} dia(s) para desbloquear o acesso à plataforma.`);
+    }
+  };
+
+  return card;
+}
+
+// ======================== CAROUSEL ========================
+function scrollCarousel(id, dir) {
+  const track = document.getElementById(id);
+  const cardW = 220 + 16;
+  track.scrollBy({ left: dir * cardW * 3, behavior: 'smooth' });
+}
+
+// ======================== VIEWER ========================
+function openDay(dayNum) {
+  const d = DAYS[dayNum - 1];
+  const users = getUsers();
+  const session = getSession();
+  currentUser = users[session.email];
+
+  document.getElementById('viewer-meta').textContent = `Dia ${d.day} — Mentoria 7 Dias`;
+  document.getElementById('viewer-title').textContent = d.title;
+  document.getElementById('viewer-desc').textContent = d.desc;
+
+  const tags = document.getElementById('viewer-tags');
+  tags.innerHTML = d.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+  const isDone = (currentUser.completed || []).includes(dayNum);
+
+  document.getElementById('viewer-body').innerHTML = `
+    <div class="ebook-container">
+      <div class="ebook-topbar">
+        <div class="ebook-topbar-title">📖 Ebook — Dia ${d.day}: ${d.title}</div>
+        <div class="ebook-topbar-actions">
+          <button class="ebook-topbar-btn">⬇ Download</button>
+          <button class="ebook-topbar-btn">🔖 Salvar</button>
+        </div>
+      </div>
+      <div class="ebook-content">
+        ${d.content}
+      </div>
+    </div>
+
+    <div class="complete-section">
+      <div class="complete-left">
+        <h4>${isDone ? '✅ Dia concluído!' : `Marcar Dia ${d.day} como concluído`}</h4>
+        <p>${isDone ? 'Você já completou este conteúdo. Continue para o próximo!' : 'Leu o conteúdo completo? Marque como concluído para liberar seu progresso.'}</p>
+      </div>
+      <button
+        class="btn-complete ${isDone ? 'completed' : ''}"
+        id="complete-btn"
+        ${isDone ? 'disabled' : ''}
+        onclick="completeDay(${dayNum})"
+      >
+        ${isDone ? '✓ Concluído' : '✅ Concluir Dia ' + dayNum}
+      </button>
+    </div>
+  `;
+
+  showPage('viewer');
+}
+
+function openDay8() {
+  const session = getSession();
+  const users = getUsers();
+  currentUser = users[session.email];
+
+  document.getElementById('viewer-meta').textContent = 'Conteúdo Final — Mentoria 7 Dias';
+  document.getElementById('viewer-title').textContent = 'Acesso à Plataforma Quotex';
+  document.getElementById('viewer-desc').textContent = 'Parabéns por completar os 7 dias! Aqui estão suas credenciais exclusivas de acesso à plataforma de operações.';
+
+  const tags = document.getElementById('viewer-tags');
+  tags.innerHTML = ['Acesso', 'Quotex', 'Plataforma', 'Exclusivo'].map(t => `<span class="tag">${t}</span>`).join('');
+
+  document.getElementById('viewer-body').innerHTML = `
+    <div class="access-card">
+      <h3>🎉 Parabéns! Você chegou lá.</h3>
+      <p>Você concluiu os 7 dias da mentoria e demonstrou comprometimento real com sua evolução. Agora você tem acesso à plataforma Quotex com suas credenciais exclusivas. Lembre-se: tudo que você aprendeu aqui foi preparação para este momento — use com disciplina.</p>
+
+      <div class="credentials-grid">
+        <div class="cred-item">
+          <div class="cred-label">🌐 Plataforma</div>
+          <div class="cred-value">Quotex</div>
+        </div>
+        <div class="cred-item">
+          <div class="cred-label">📧 Login (E-mail)</div>
+          <div class="cred-value" id="cred-email">
+            <span>${currentUser.email}</span>
+            <button class="copy-btn" onclick="copyText('${currentUser.email}','E-mail copiado!')">📋</button>
+          </div>
+        </div>
+        <div class="cred-item">
+          <div class="cred-label">🔑 Senha padrão</div>
+          <div class="cred-value">
+            <span id="pass-display">Brasil@123</span>
+            <button class="copy-btn" onclick="copyText('Brasil@123','Senha copiada!')">📋</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cred-warning">
+        ⚠️ <strong>Importante:</strong> Ao acessar a plataforma pela primeira vez, altere imediatamente a sua senha para uma pessoal e segura. Nunca compartilhe suas credenciais.
+      </div>
+
+      <a class="btn-access" href="https://qxbroker.com/pt/sign-in/" target="_blank" rel="noopener">
+        🚀 Acessar a Plataforma Quotex →
+      </a>
+    </div>
+
+    <div class="ebook-container">
+      <div class="ebook-topbar">
+        <div class="ebook-topbar-title">📋 Guia de Primeiros Passos na Plataforma</div>
+      </div>
+      <div class="ebook-content">
+        <h2>Como começar na Quotex</h2>
+        <p>Você passou 7 dias se preparando. Agora é hora de operar com consciência. Siga este guia nos seus primeiros dias na plataforma.</p>
+        <h3>Passo 1 — Primeiro acesso</h3>
+        <ul>
+          <li>Acesse quotex.com e faça login com as credenciais acima</li>
+          <li>Vá em Configurações → Segurança → Alterar Senha</li>
+          <li>Defina uma nova senha forte e pessoal</li>
+          <li>Explore o painel sem operar: familiarize-se com a interface</li>
+        </ul>
+        <h3>Passo 2 — Conta demo primeiro</h3>
+        <p>A Quotex oferece conta demo com saldo virtual. Opere nela por pelo menos 3 dias antes de depositar dinheiro real. Valide sua estratégia antes de arriscar capital.</p>
+        <div class="highlight-box"><p>💡 Só migre para conta real quando tiver pelo menos 70% de assertividade por 3 dias consecutivos na demo.</p></div>
+        <h3>Passo 3 — Depósito inicial</h3>
+        <ul>
+          <li>Deposite apenas o que você pode perder completamente</li>
+          <li>Comece com o valor mínimo (verifique o mínimo atual na plataforma)</li>
+          <li>Nunca use dinheiro de emergência ou empréstimos</li>
+        </ul>
+        <h3>Passo 4 — Primeiras operações reais</h3>
+        <ul>
+          <li>Use apenas setups que você praticou e que funcionaram na demo</li>
+          <li>Limite-se a 2% do capital por operação</li>
+          <li>Pare ao atingir meta OU stop diário</li>
+          <li>Registre tudo no diário de operações</li>
+        </ul>
+        <div class="tip-box"><p>✅ <strong>Lembre-se:</strong> O mercado sempre vai estar lá amanhã. Preservar capital é tão importante quanto lucrar. Seja paciente e consistente.</p></div>
+      </div>
+    </div>
+  `;
+
+  showPage('viewer');
+}
+
+function completeDay(dayNum) {
+  const session = getSession();
+  const users = getUsers();
+  currentUser = users[session.email];
+  if (!currentUser.completed) currentUser.completed = [];
+  if (!currentUser.completed.includes(dayNum)) {
+    currentUser.completed.push(dayNum);
+    users[session.email] = currentUser;
+    saveUsers(users);
+  }
+
+  const btn = document.getElementById('complete-btn');
+  btn.textContent = '✓ Concluído';
+  btn.className = 'btn-complete completed';
+  btn.disabled = true;
+  btn.previousElementSibling.querySelector('h4').textContent = '✅ Dia concluído!';
+
+  toast(`🎉 Dia ${dayNum} concluído! Excelente!`, 'success');
+
+  if (dayNum === 7) {
+    setTimeout(() => toast('🌟 Você completou os 7 dias! Acesso à Plataforma liberado!', 'success'), 1500);
+  }
+}
+
+function copyText(text, msg) {
+  navigator.clipboard.writeText(text).then(() => toast(msg, 'success'));
+}
+
+// ======================== MODALS ========================
+function showLockedModal(day, customMsg) {
+  const modal = document.getElementById('modal-locked');
+  const txt = document.getElementById('modal-locked-text');
+  if (customMsg) {
+    txt.textContent = customMsg;
+  } else {
+    const unlocked = getUnlockedDays(currentUser);
+    const daysLeft = day - unlocked;
+    txt.textContent = `O Dia ${day} será liberado em ${daysLeft} dia(s) útil(eis). O conteúdo é liberado automaticamente de segunda a sexta.`;
+  }
+  modal.classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('modal-locked').classList.add('hidden');
+}
+
+document.getElementById('modal-locked').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ======================== TOAST ========================
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `<span style="font-size:1rem">${icons[type]}</span><span>${msg}</span>`;
+  container.appendChild(t);
+  setTimeout(() => {
+    t.classList.add('hiding');
+    setTimeout(() => t.remove(), 300);
+  }, 3500);
+}
+
+// ======================== SCROLL HELPERS ========================
+function scrollToContent() {
+  document.getElementById('mentoria-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function heroAction() {} // replaced dynamically
+
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+  const nb = document.getElementById('navbar');
+  if (nb) nb.classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// ======================== INIT ========================
+(function init() {
+  const session = getSession();
+  if (session) {
+    loadDashboard();
+    showPage('dashboard');
+  } else {
+    showPage('auth');
+  }
+  
+  // Demo account shortcut - pre-fill for testing
+  // Create a demo user if none exists
+  const users = getUsers();
+  if (!users['demo@mentoria.com']) {
+    const reg = new Date();
+    reg.setDate(reg.getDate() - 7); // registered 7 days ago
+    users['demo@mentoria.com'] = {
+      name: 'Usuário Demo',
+      email: 'demo@mentoria.com',
+      password: btoa('demo123'),
+      registeredAt: reg.toISOString(),
+      completed: [1, 2, 3]
+    };
+    saveUsers(users);
+  }
+})();
+</script>
+</body>
+</html>
